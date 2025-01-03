@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    url: "jdbc:mysql://localhost:3306/transport_hc"
+    driverClassName: "com.mysql.cj.jdbc.Driver"
+    username: root
+    password: root
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+server:
+  port: 8080
+  servlet:
+    context-path: /transport
+jwt:
+  signer-key: "Kzcc0e340iP5YdE8pWz+AqKjoPGMsoF4BMXxN1fdNT/Ku1xBevp5iJNzoc8CNZxM"
+
