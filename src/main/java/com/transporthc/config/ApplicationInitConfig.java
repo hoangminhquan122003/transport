@@ -4,6 +4,7 @@ import com.transporthc.entity.Customer;
 import com.transporthc.repository.CustomerRepository;
 import com.transporthc.utils.Role;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,7 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class ApplicationInitConfig {
 
     @Bean
-    public ApplicationRunner applicationRunner(CustomerRepository repository) {
+    public ApplicationRunner applicationRunner(@Qualifier("customerRepositoryImpl") CustomerRepository repository) {
         return args -> {
             if (!repository.existsByEmail("admin@gmail.com")) {
                 PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);

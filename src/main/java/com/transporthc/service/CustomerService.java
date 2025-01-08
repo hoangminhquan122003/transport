@@ -19,95 +19,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-@Service
-@FieldDefaults(level = AccessLevel.PRIVATE,makeFinal = true)
-@RequiredArgsConstructor
-@Slf4j
-public class CustomerService {
-    PasswordEncoder passwordEncoder;
-    CustomerRepository customerRepository;
+public interface CustomerService {
 
-    public CustomerResponse createCustomer (CustomerRequest customerRequest){
-        validateCustomerRequest(customerRequest);
-        Customer customer=Customer.builder()
-                .customerName(customerRequest.getCustomerName())
-                .customerAddress(customerRequest.getCustomerAddress())
-                .email(customerRequest.getEmail())
-                .password(passwordEncoder.encode(customerRequest.getPassword()))
-                .role(Role.CUSTOMER.name())
-                .build();
-        customerRepository.save(customer);
-        log.info("Creating new customer with name: {}", customerRequest.getCustomerName());
-        return CustomerResponse.builder()
-                .customerId(customer.getCustomerId())
-                .customerName(customer.getCustomerName())
-                .customerAddress(customer.getCustomerAddress())
-                .email(customer.getEmail())
-                .build();
-    }
+    CustomerResponse createCustomer (CustomerRequest customerRequest);
 
-    private void validateCustomerRequest(CustomerRequest customerRequest) {
-        if (customerRepository.existsByCustomerName(customerRequest.getCustomerName())) {
-            log.error("customer name existed:{}",customerRequest.getCustomerName());
-            throw new AppException(ErrorCode.USER_EXISTED);
-        }
-        if (customerRepository.existsByEmail(customerRequest.getEmail())) {
-            log.error("email existed:{}",customerRequest.getEmail());
-            throw new AppException(ErrorCode.EMAIL_EXISTED);
-        }
-    }
-    @PreAuthorize("hasRole('ADMIN')")
-    public List<CustomerResponse> getAllCustomer(){
-        var listCustomer=customerRepository.findAll();
-        return listCustomer.stream().map((customer)->CustomerResponse.builder()
-                .customerId(customer.getCustomerId())
-                .customerName(customer.getCustomerName())
-                .customerAddress(customer.getCustomerAddress())
-                .email(customer.getEmail())
-                .build()).toList();
-    }
+    List<CustomerResponse> getAllCustomer();
 
-    public CustomerResponse getCustomerById(Integer customerId){
-        var customer=customerRepository.findByCustomerId(customerId)
-                .orElseThrow(()->new AppException(ErrorCode.USER_NOT_EXISTED));
-        log.info("get customer by id: {}",customerId);
-        return CustomerResponse.builder()
-                .customerId(customer.getCustomerId())
-                .customerName(customer.getCustomerName())
-                .customerAddress(customer.getCustomerAddress())
-                .email(customer.getEmail())
-                .build();
-    }
+    CustomerResponse getCustomerById(Integer customerId);
 
-    public CustomerResponse updateCustomer(Integer customerId, UpdateCustomerRequest updateCustomerRequest){
-        var customer=customerRepository.findByCustomerId(customerId)
-                .orElseThrow(()->new AppException(ErrorCode.USER_NOT_EXISTED));
-        if(!passwordEncoder.matches(updateCustomerRequest.getOldPassword(),customer.getPassword())){
-            log.error("password incorrect");
-            throw new AppException(ErrorCode.PASSWORD_INCORRECT);
-        }
-        if(updateCustomerRequest.getOldPassword().equalsIgnoreCase(updateCustomerRequest.getNewPassword())){
-            log.error("both password are the same");
-            throw new AppException(ErrorCode.PASSWORD_SAME);
-        }
-        customer.setCustomerName(updateCustomerRequest.getCustomerName());
-        customer.setCustomerAddress(updateCustomerRequest.getCustomerAddress());
-        customer.setEmail(updateCustomerRequest.getEmail());
-        customer.setPassword(passwordEncoder.encode(updateCustomerRequest.getNewPassword()));
-        customerRepository.save(customer);
-        log.info("update customer with id:{} successful",customerId);
-        return CustomerResponse.builder()
-                .customerId(customer.getCustomerId())
-                .customerName(customer.getCustomerName())
-                .customerAddress(customer.getCustomerAddress())
-                .email(customer.getEmail())
-                .build();
+    CustomerResponse updateCustomer(Integer customerId, UpdateCustomerRequest updateCustomerRequest);
 
-    }
-    @PreAuthorize("hasRole('ADMIN')")
-    @Transactional
-    public void deleteCustomer(Integer customerId){
-        customerRepository.deleteByCustomerId(customerId);
-        log.info("delete customer id:{} successful",customerId);
-    }
+    void deleteCustomer(Integer customerId);
 }

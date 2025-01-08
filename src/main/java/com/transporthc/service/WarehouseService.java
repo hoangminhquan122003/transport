@@ -15,60 +15,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-@Service
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@RequiredArgsConstructor
-@Slf4j
-public class WarehouseService {
-    WarehouseRepository warehouseRepository;
+public interface WarehouseService {
 
-    public WarehouseResponse createWarehouse(WarehouseRequest warehouseRequest) {
-        if (warehouseRepository.existsByWarehouseName(warehouseRequest.getWarehouseName())) {
-            log.error("warehouse name existed:{}", warehouseRequest.getWarehouseName());
-            throw new AppException(ErrorCode.WAREHOUSE_EXISTED);
-        }
-        Warehouse warehouse = Warehouse.builder()
-                .warehouseAddress(warehouseRequest.getWarehouseAddress())
-                .warehouseName(warehouseRequest.getWarehouseName())
-                .build();
-        warehouseRepository.save(warehouse);
-        log.info("create warehouse {} successful", warehouseRequest.getWarehouseName());
-        return WarehouseResponse.builder()
-                .warehouseId(warehouse.getWarehouseId())
-                .warehouseName(warehouse.getWarehouseName())
-                .warehouseAddress(warehouse.getWarehouseAddress())
-                .build();
-    }
+    WarehouseResponse createWarehouse(WarehouseRequest warehouseRequest);
 
-    public List<WarehouseResponse> getAllWarehouse() {
-        List<Warehouse> listWarehouse = warehouseRepository.findAll();
-        log.info("get all warehouse");
-        return listWarehouse.stream().map(warehouse -> WarehouseResponse.builder()
-                .warehouseId(warehouse.getWarehouseId())
-                .warehouseName(warehouse.getWarehouseName())
-                .warehouseAddress(warehouse.getWarehouseAddress())
-                .build()
-        ).toList();
-    }
+    List<WarehouseResponse> getAllWarehouse();
 
-    public WarehouseResponse updateWarehouse(Integer warehouseId, WarehouseRequest warehouseRequest) {
-        Warehouse warehouse = warehouseRepository.findByWarehouseId(warehouseId).orElseThrow(
-                () -> new AppException(ErrorCode.WAREHOUSE_NOT_EXISTED)
-        );
-        warehouse.setWarehouseAddress(warehouseRequest.getWarehouseAddress());
-        warehouse.setWarehouseName(warehouseRequest.getWarehouseName());
-        warehouseRepository.save(warehouse);
-        log.info("update warehouse:{} successful", warehouseRequest.getWarehouseName());
-        return WarehouseResponse.builder()
-                .warehouseId(warehouse.getWarehouseId())
-                .warehouseName(warehouse.getWarehouseName())
-                .warehouseAddress(warehouse.getWarehouseAddress())
-                .build();
-    }
+    WarehouseResponse updateWarehouse(Integer warehouseId, WarehouseRequest warehouseRequest);
 
-    @Transactional
-    public void deleteWarehouse(Integer warehouseId) {
-        warehouseRepository.deleteByWarehouseId(warehouseId);
-        log.info("delete warehouse id:{}", warehouseId);
-    }
+    void deleteWarehouse(Integer warehouseId) ;
 }

@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface WarehouseRepository extends JpaRepository<Warehouse,Integer> {
+public interface WarehouseRepository extends BaseRepository<Warehouse,Integer> {
     boolean existsByWarehouseName(String warehouseName);
 
     Optional<Warehouse> findByWarehouseId(Integer warehouseId);

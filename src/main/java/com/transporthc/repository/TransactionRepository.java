@@ -13,13 +13,11 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface TransactionRepository extends JpaRepository<Transaction,Integer> {
+public interface TransactionRepository extends BaseRepository<Transaction,Integer> {
     void deleteByTransactionId(Integer transactionId);
-    @Query( "SELECT t from Transaction t "+
-            "WHERE t.transactionDate >= :startDate "+
-            "AND t.transactionDate <= :endDate ")
-    public List<Transaction> searchTransactionDate(@Param("startDate") LocalDate startDate,
-                                            @Param("endDate") LocalDate endDate);
+
+    List<Transaction> searchTransactionDate( LocalDate startDate,
+                                             LocalDate endDate);
 
     Optional<Transaction> findByTransactionId(Integer transactionId);
 }

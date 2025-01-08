@@ -29,72 +29,10 @@ import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.UUID;
 
-@Service
-@FieldDefaults(level = AccessLevel.PRIVATE,makeFinal = true)
-@RequiredArgsConstructor
-@Slf4j
-public class AuthenticationService {
-    CustomerRepository customerRepository;
+public interface AuthenticationService {
 
-    @NonFinal
-    @Value("${jwt.signer-key}")
-    String SIGNER_KEY;
+    AuthenticationResponse authenticate(AuthenticationRequest request);
 
-    public AuthenticationResponse authenticate(AuthenticationRequest request){
-        Customer customer=customerRepository.findByEmail(request.getEmail())
-                .orElseThrow(()-> new AppException(ErrorCode.EMAIL_NOT_EXISTED));
-        PasswordEncoder passwordEncoder= new BCryptPasswordEncoder(10);
-        boolean isAuthenticated =passwordEncoder.matches(request.getPassword(), customer.getPassword());
-        if(!isAuthenticated){
-            throw new AppException(ErrorCode.UNAUTHENTICATED);
-        }
-        String token=generateToken(customer);
-        return  AuthenticationResponse.builder()
-                .token(token)
-                .build();
-    }
+    IntrospectResponse introspect(IntrospectRequest introspectRequest);
 
-    private String generateToken(Customer customer) {
-        JWSHeader header=new JWSHeader(JWSAlgorithm.HS512);
-        JWTClaimsSet jwtClaimsSet=new JWTClaimsSet.Builder()
-                .jwtID(UUID.randomUUID().toString())
-                .issueTime(new Date())
-                .expirationTime(new Date(Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli()))
-                .subject(customer.getCustomerName())
-                .claim("customerId",customer.getCustomerId())
-                .claim("scope","ROLE_"+customer.getRole())
-                .build();
-        Payload payload= new Payload(jwtClaimsSet.toJSONObject());
-        JWSObject jwsObject=new JWSObject(header,payload);
-        try{
-            jwsObject.sign(new MACSigner(SIGNER_KEY.getBytes()));
-            return jwsObject.serialize();
-        }catch (JOSEException e){
-            log.error("token not create");
-            throw new RuntimeException(e);
-        }
-    }
-    public IntrospectResponse introspect(IntrospectRequest introspectRequest){
-        String token=introspectRequest.getToken();
-        boolean isValid=true;
-        try{
-            verifyToken(token);
-        }catch (AppException | JOSEException | ParseException e){
-            isValid=false;
-        }
-        return IntrospectResponse.builder()
-                .isAuthenticated(isValid)
-                .build();
-    }
-
-    private SignedJWT verifyToken(String token) throws JOSEException, ParseException {
-        JWSVerifier jwsVerifier=new MACVerifier(SIGNER_KEY.getBytes());
-        SignedJWT signedJWT= SignedJWT.parse(token);
-        Date expirationTime= signedJWT.getJWTClaimsSet().getExpirationTime();
-        boolean isVerified = signedJWT.verify(jwsVerifier);
-        if(!(isVerified &&expirationTime.after(new Date())))
-            throw new AppException(ErrorCode.UNAUTHENTICATED);
-
-        return signedJWT;
-    }
 }
