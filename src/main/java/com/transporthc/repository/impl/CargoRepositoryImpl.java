@@ -7,6 +7,7 @@ import com.transporthc.repository.BaseRepository;
 import com.transporthc.repository.CargoRepository;
 import jakarta.persistence.EntityManager;
 import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Scope;
 
 import java.util.Optional;
 @Primary

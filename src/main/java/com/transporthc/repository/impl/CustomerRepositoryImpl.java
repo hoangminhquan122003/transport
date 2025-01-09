@@ -7,9 +7,10 @@ import jakarta.persistence.EntityManager;
 import org.springframework.context.annotation.Primary;
 
 import java.util.Optional;
+
 @Primary
-public class CustomerRepositoryImpl extends BaseRepositoryImpl<Customer,Integer> implements CustomerRepository {
-    final QCustomer customer=QCustomer.customer;
+public class CustomerRepositoryImpl extends BaseRepositoryImpl<Customer, Integer> implements CustomerRepository {
+    final QCustomer customer = QCustomer.customer;
 
     public CustomerRepositoryImpl(EntityManager em) {
         super(Customer.class, em);
@@ -20,7 +21,7 @@ public class CustomerRepositoryImpl extends BaseRepositoryImpl<Customer,Integer>
         return query.selectOne()
                 .from(customer)
                 .where(customer.customerName.eq(customerName))
-                .fetchOne() !=null;
+                .fetchOne() != null;
     }
 
     @Override
@@ -28,7 +29,7 @@ public class CustomerRepositoryImpl extends BaseRepositoryImpl<Customer,Integer>
         return query.selectOne()
                 .from(customer)
                 .where(customer.email.eq(email))
-                .fetchOne() !=null;
+                .fetchOne() != null;
     }
 
     @Override

@@ -30,6 +30,5 @@ public class ApplicationInitConfig {
                 repository.save(customer);
             }
         };
-
     }
 }

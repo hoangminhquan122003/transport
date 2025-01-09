@@ -44,6 +44,7 @@ public class CustomerServiceImpl implements CustomerService {
                 .customerName(customer.getCustomerName())
                 .customerAddress(customer.getCustomerAddress())
                 .email(customer.getEmail())
+                .role(customer.getRole())
                 .build();
     }
 

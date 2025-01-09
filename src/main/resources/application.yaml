@@ -8,6 +8,12 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+  security:
+    oauth2.client.registration.google:
+      client-id: 719567028221-qcbdr22ff3aq434j31uqav1ig2halp5i.apps.googleusercontent.com
+      client-secret: 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
+      redirect-uri: "http://localhost:8080/transport/login/oauth2/code/google"
+
 server:
   port: 8080
   servlet:
